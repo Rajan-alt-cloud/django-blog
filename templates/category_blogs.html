@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h3 class="text-uppercase text-warning mb-3" style="letter-spacing: 2px;">
+  Category - {% if current_category %}{{ current_category.category_name }}{% else %}Unknown{% endif %}
+</h3>
+
+<div class="row">
+  {% if posts %}
+    {% for post in posts %}
+      <div class="col-md-6 mb-4">
+        <div class="card border-0">
+          <div class="card-body">
+            <h3>{{ post.title }}</h3>
+            <small class="mb-1 text-muted">{{ post.created_at|date:"M d, Y" }} | {{ post.author }}</small>
+            <p class="card-text">{{ post.short_description|truncatewords:20 }}</p>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  {% else %}
+    <div class="col-12">
+      <p class="text-muted">No posts available in this category.</p>
+    </div>
+  {% endif %}
+</div>
+
+{% endblock %}
