@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="container mt-5">
+    <h2>Search Results for "{{ keyword }}"</h2>
+    
+    {% if posts %}
+        <div class="row">
+            <div class="col-md-8">
+                {% for post in posts %}
+                    <div class="card mb-3 border-0">
+                        <div class="card-body">
+                            <h3><a href="{% url 'blogs' post.slug %}" class="text-dark">{{ post.title }}</a></h3>
+                            <small class="text-muted">{{ post.created_at|date:"M d, Y" }} | {{ post.author }}</small>
+                            <p class="card-text mt-2">{{ post.short_description|truncatewords:30 }}</p>
+                            <a href="{% url 'blogs' post.slug %}" class="btn btn-sm btn-primary">Read More</a>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            <div class="col-md-4">
+                <div class="card mb-3 p-3">
+                    <h5>Search Term</h5>
+                    <p>"{{ keyword }}"</p>
+                    <p class="text-muted">{{ posts.count }} result{{ posts.count|pluralize }}</p>
+                </div>
+                {% if SocialLink %}
+                <div class="card mb-3 p-3">
+                    <h5>Follow Us</h5>
+                    <ul class="list-unstyled">
+                        {% for link in SocialLink %}
+                        <li><a href="{{ link.url }}" target="_blank">{{ link.platform }}</a></li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    {% else %}
+        <div class="alert alert-info mt-3">
+            <p>No results found for "{{ keyword }}". Try searching with different keywords.</p>
+        </div>
+    {% endif %}
+</div>
+
+{% endblock %}

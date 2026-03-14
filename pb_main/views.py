@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.templatetags.static import static
 
 from blogs.models import Category, Blog
+from assignments.models import About, SocialLink
 
 
 def home(request):
@@ -25,11 +26,20 @@ def home(request):
     )
     if featured_ids:
         posts = posts.exclude(pk__in=featured_ids)
+    
+    # Fetch about us - show only the latest one
+    about = About.objects.order_by('-updated_at').first()
+    
+    # Fetch all social links
+    social_links = SocialLink.objects.all()
+    
     context = {
         "category": categories,
         "featured_post": featured_post,
         "featured_posts": featured_posts,
         "hero_image_url": hero_image_url,
         "posts": posts,
+        "about": about,
+        "SocialLink": social_links,
     }
     return render(request, "home.html", context)

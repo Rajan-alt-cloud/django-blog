@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="container mt-5">
+  {% if post %}
+    <article class="blog-post">
+      <h1>{{ post.title }}</h1>
+      <p class="text-muted">
+        By {{ post.author }} | {{ post.created_at|date:"M d, Y" }} | Category: 
+        <a href="{% url 'category_blogs' post.category.id %}">{{ post.category.category_name }}</a>
+      </p>
+      
+      {% if post.featured_image %}
+        <img src="{{ post.featured_image.url }}" alt="{{ post.title }}" class="img-fluid mb-3">
+      {% endif %}
+      
+      <p>{{ post.short_description }}</p>
+      <div class="blog-body">
+        {{ post.blog_body }}
+      </div>
+    </article>
+  {% else %}
+    <p class="text-muted">Post not found.</p>
+  {% endif %}
+</div>
+
+{% endblock %}
