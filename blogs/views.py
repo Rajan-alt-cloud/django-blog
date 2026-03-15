@@ -1,5 +1,8 @@
+from multiprocessing import context
+
 from django.shortcuts import get_object_or_404, redirect, render
 from django.db.models import Q
+
 from .models import Blog, Category
 from assignments.models import SocialLink
 
@@ -55,9 +58,9 @@ def search(request):
     posts = []
     if keyword:
         posts = Blog.objects.filter(
-            Q(title__icontains=keyword) | 
-            Q(short_description__icontains=keyword) | 
-            Q(blog_body__icontains=keyword),
+            Q(title__icontains=keyword,status=1) | 
+            Q(short_description__icontains=keyword,status=1) | 
+            Q(blog_body__icontains=keyword,status=1),
             status=1
         ).order_by("-created_at")
     
@@ -69,3 +72,7 @@ def search(request):
         'search_results': True,
     }
     return render(request, 'search_results.html', context)
+
+
+def register(request):
+    return render(request, 'register.html',context)

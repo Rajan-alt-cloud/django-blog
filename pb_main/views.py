@@ -1,8 +1,12 @@
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 from django.templatetags.static import static
 
 from blogs.models import Category, Blog
 from assignments.models import About, SocialLink
+from .forms import RegistrationForm
+from django.contrib.auth.forms import AuthenticationForm    
+from django.contrib.auth import authenticate, login, logout
+from django.contrib import messages
 
 
 def home(request):
@@ -43,3 +47,50 @@ def home(request):
         "SocialLink": social_links,
     }
     return render(request, "home.html", context)
+
+
+def register(request):
+    if request.method == 'POST':
+        form = RegistrationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('register')  # Redirect to the same page or any other page after successful registration
+        else:
+            print(form.errors)  # Print form errors to the console for debugging
+    else:
+        form = RegistrationForm()
+    context ={
+        'form': form,
+    }
+    return render(request, 'register.html',context)
+
+def login_view(request):
+    if request.user.is_authenticated:
+        return redirect('home')
+
+    form = AuthenticationForm(request, data=request.POST or None)
+
+    if request.method == 'POST':
+        if form.is_valid():
+            username = form.cleaned_data.get('username')
+            password = form.cleaned_data.get('password')
+
+            user = authenticate(request, username=username, password=password)
+            if user is not None:
+                login(request, user)
+                messages.success(request, 'You are now logged in.')
+                return redirect('home')
+
+            messages.error(request, 'Invalid username or password.')
+
+    context = {
+        'form': form,
+    }   
+
+    return render(request, 'login.html', context)
+
+
+def logout_view(request):
+    logout(request)
+    messages.success(request, 'You are now logged out.')
+    return redirect('home')
