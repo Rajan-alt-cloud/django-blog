@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.utils.text import slugify
 
 
 class Category(models.Model):
@@ -29,6 +30,18 @@ class Blog(models.Model):
     is_featured = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    def save(self, *args, **kwargs):
+        base_slug = slugify(self.slug or self.title) or 'post'
+        slug = base_slug
+        counter = 2
+
+        while Blog.objects.exclude(pk=self.pk).filter(slug=slug).exists():
+            slug = f'{base_slug}-{counter}'
+            counter += 1
+
+        self.slug = slug
+        super().save(*args, **kwargs)
 
 
     def __str__(self):
