@@ -79,7 +79,7 @@ def login_view(request):
             if user is not None:
                 login(request, user)
                 messages.success(request, 'You are now logged in.')
-                return redirect('home')
+                return redirect('dashboard')
 
             messages.error(request, 'Invalid username or password.')
 
