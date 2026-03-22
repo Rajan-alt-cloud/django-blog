@@ -54,7 +54,7 @@ def blogs(request, slug):
     return render(request, 'blogs.html', context)
 
 def search(request):
-    keyword = request.GET.get('keyword', '')
+    keyword = request.GET.get('keyword', '').strip()
     posts = []
     if keyword:
         posts = Blog.objects.filter(

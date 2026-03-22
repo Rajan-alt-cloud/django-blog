@@ -1,11 +1,13 @@
 from django.shortcuts import redirect, render
 from blogs.models import Blog, Category
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib import messages
 from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_POST
 
-from .forms import CategoryForm, BlogForm
+from .forms import CategoryForm, BlogForm, UserForm, AddUserForm
 from django.template.defaultfilters import slugify
+from django.contrib.auth.models import User
 
 
 def _generate_unique_slug(title, exclude_id=None):
@@ -138,3 +140,70 @@ def delete_post(request, pk):
     post = get_object_or_404(Blog, pk=pk)
     post.delete()
     return redirect('posts')
+
+
+@login_required(login_url='login')
+@permission_required('auth.view_user', raise_exception=True)
+def users(request):
+    users = User.objects.all()
+    context = {
+        'users': users
+    }   
+    return render(request, 'dashboard/users.html', context)
+
+
+@login_required(login_url='login')
+def user_profile(request):
+    context = {
+        'user_obj': request.user,
+    }
+    return render(request, 'dashboard/user_profile.html', context)
+
+
+@login_required(login_url='login')
+@permission_required('auth.change_user', raise_exception=True)
+def edit_user(request, pk):
+    user_obj = get_object_or_404(User, pk=pk)
+
+    if request.method == 'POST':
+        form = UserForm(request.POST, instance=user_obj)
+        if form.is_valid():
+            form.save()
+            return redirect('user_profile')
+    else:
+        form = UserForm(instance=user_obj)
+
+    context = {
+        'form': form,
+        'pk': user_obj.id,
+    }
+    return render(request, 'dashboard/edit_user.html', context)
+
+
+@login_required(login_url='login')
+@permission_required('auth.add_user', raise_exception=True)
+def add_user(request):
+    if request.method == 'POST':
+        form = AddUserForm(request.POST)
+        if form.is_valid():
+            user_obj = form.save()
+            messages.success(request, f'User "{user_obj.username}" has been created successfully.')
+            return redirect('users')
+        messages.error(request, 'User could not be created. Please fix the form errors and submit again.')
+    else:
+        form = AddUserForm()
+
+    context = {
+        'form': form,
+    }
+    return render(request, 'dashboard/add_user.html', context)
+
+
+@login_required(login_url='login')
+@permission_required('auth.delete_user', raise_exception=True)
+@require_POST
+def delete_user(request, pk):
+    user_obj = get_object_or_404(User, pk=pk)
+    user_obj.delete()
+    return redirect('users')
+

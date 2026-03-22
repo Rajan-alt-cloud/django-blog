@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row">
+<!-- left sidebar -->
+<!-- load the sidebar content -->
+ {% include 'dashboard/sidebar.html' %}
+
+<!-- right sidebar -->
+    <div class="col-md-9">
+        <h2>User Profile</h2>
+        <table class="table table-hover w-auto">
+            <tbody>
+                <tr>
+                    <th scope="row">Full Name</th>
+                    <td>{{ user_obj.get_full_name }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">Username</th>
+                    <td>{{ user_obj.username }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">Email</th>
+                    <td>{{ user_obj.email }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">Active</th>
+                    <td>{% if user_obj.is_active %}<span class="text-success">Yes</span>{% else %}<span class="text-danger">No</span>{% endif %}</td>
+                </tr>
+                <tr>
+                    <th scope="row">Staff</th>
+                    <td>{% if user_obj.is_staff %}<span class="text-success">Yes</span>{% else %}<span class="text-danger">No</span>{% endif %}</td>
+                </tr>
+                <tr>
+                    <th scope="row">Superuser</th>
+                    <td>{% if user_obj.is_superuser %}<span class="text-success">Yes</span>{% else %}<span class="text-danger">No</span>{% endif %}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}
