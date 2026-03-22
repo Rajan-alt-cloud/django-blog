@@ -2,8 +2,9 @@ from multiprocessing import context
 
 from django.shortcuts import get_object_or_404, redirect, render
 from django.db.models import Q
+from django.contrib import messages
 
-from .models import Blog, Category
+from .models import Blog, Category, Comment
 from assignments.models import SocialLink
 
 def home(request):
@@ -46,8 +47,26 @@ def category_blogs(request, category_id):
 
 def blogs(request, slug):
     single_blog = get_object_or_404(Blog, slug=slug, status=1)
+
+    if request.method == "POST":
+        content = request.POST.get("content", "").strip()
+        if not request.user.is_authenticated:
+            messages.error(request, "Please login to add a comment.")
+        elif not content:
+            messages.error(request, "Comment cannot be empty.")
+        else:
+            Comment.objects.create(
+                user=request.user,
+                blog=single_blog,
+                content=content
+            )
+            messages.success(request, "Comment added successfully.")
+            return redirect('blogs', slug=slug)
+    #Comments for the blog
+    comments = Comment.objects.filter(blog=single_blog).order_by("-created_at")
     context = {
         'single_blog': single_blog,
+        'comments': comments,
         'category': Category.objects.all(),
         'SocialLink': SocialLink.objects.all(),
     }
